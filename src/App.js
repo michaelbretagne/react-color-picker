@@ -4,7 +4,7 @@ import Palette from "./Palette";
 import { generatePalette } from "./colorHelpers";
 
 function App() {
-  return <Palette palette={generatePalette(seedPalettes[0])} />;
+  return <Palette palette={generatePalette(seedPalettes[1])} />;
 }
 
 export default App;
