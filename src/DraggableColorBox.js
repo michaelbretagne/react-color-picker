@@ -19,7 +19,7 @@ const DraggableColorBox = props => {
       className={props.classes.root}
       style={{ backgroundColor: props.color }}
     >
-      {props.colors}
+      {props.name}
     </div>
   );
 };
