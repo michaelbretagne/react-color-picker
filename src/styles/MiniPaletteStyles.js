@@ -9,6 +9,9 @@ export default {
     "&:hover": {
       cursor: "pointer",
     },
+    "&:last-child": {
+      marginBottom: "40px",
+    },
   },
   colors: {
     backgroundColor: "#dae1e4",

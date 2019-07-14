@@ -5,6 +5,7 @@ export default {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "center",
+    overflowY: "scroll",
   },
   container: {
     width: "50%",
@@ -31,5 +32,6 @@ export default {
     display: "grid",
     gridTemplateColumns: "repeat(3, 30%)",
     gridGap: "5%",
+    paddingBottom: "40px",
   },
 };
