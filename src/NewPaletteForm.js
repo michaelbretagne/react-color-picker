@@ -82,12 +82,14 @@ class NewPaletteForm extends Component {
       open: true,
       currentColor: "teal",
       colors: [{ color: "blue", name: "blue" }],
-      newName: "",
+      newColorName: "",
+      newPaletteName: "",
     };
     this.updateCurrentColor = this.updateCurrentColor.bind(this);
     this.addNewColor = this.addNewColor.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.savePalette = this.savePalette.bind(this);
+    this.removeColor = this.removeColor.bind(this);
   }
 
   componentDidMount() {
@@ -99,6 +101,12 @@ class NewPaletteForm extends Component {
 
     ValidatorForm.addValidationRule("isColorUnique", value =>
       this.state.colors.every(({ color }) => color !== this.state.currentColor),
+    );
+
+    ValidatorForm.addValidationRule("isPaletteNameUnique", value =>
+      this.props.palettes.every(
+        ({ paletteName }) => paletteName.toLowerCase() !== value.toLowerCase(),
+      ),
     );
   }
 
@@ -117,17 +125,20 @@ class NewPaletteForm extends Component {
   addNewColor() {
     const newColor = {
       color: this.state.currentColor,
-      name: this.state.newName,
+      name: this.state.newColorName,
     };
-    this.setState({ colors: [...this.state.colors, newColor], newName: "" });
+    this.setState({
+      colors: [...this.state.colors, newColor],
+      newColorName: "",
+    });
   }
 
   handleChange(evt) {
-    this.setState({ newName: evt.target.value });
+    this.setState({ [evt.target.name]: evt.target.value });
   }
 
   savePalette() {
-    let newName = "New Test Palette";
+    let newName = this.state.newPaletteName;
     const newPalette = {
       paletteName: newName,
       id: newName.toLowerCase().replace(/ /g, "-"),
@@ -137,9 +148,15 @@ class NewPaletteForm extends Component {
     this.props.history.push("/");
   }
 
+  removeColor(colorName) {
+    this.setState({
+      colors: this.state.colors.filter(color => color.name !== colorName),
+    });
+  }
+
   render() {
     const { classes } = this.props;
-    const { open, currentColor, colors, newName } = this.state;
+    const { open, currentColor, colors, newColorName } = this.state;
 
     return (
       <div className={classes.root}>
@@ -163,13 +180,19 @@ class NewPaletteForm extends Component {
             <Typography variant="h6" color="inherit" noWrap>
               Persistent drawer
             </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={this.savePalette}
-            >
-              Save Palette
-            </Button>
+            <ValidatorForm onSubmit={this.savePalette}>
+              <TextValidator
+                label="Palette Name"
+                name="newPaletteName"
+                value={this.state.newPaletteName}
+                onChange={this.handleChange}
+                validators={["required", "isPaletteNameUnique"]}
+                errorMessages={["Enter Palette Name", "Name already used"]}
+              />
+              <Button variant="contained" color="primary" type="submit">
+                Save Palette
+              </Button>
+            </ValidatorForm>
           </Toolbar>
         </AppBar>
         <Drawer
@@ -202,7 +225,8 @@ class NewPaletteForm extends Component {
           />
           <ValidatorForm onSubmit={this.addNewColor}>
             <TextValidator
-              value={newName}
+              value={newColorName}
+              name="newColorName"
               onChange={this.handleChange}
               validators={["required", "isColorNameUnique", "isColorUnique"]}
               errorMessages={[
@@ -212,10 +236,10 @@ class NewPaletteForm extends Component {
               ]}
             />
             <Button
+              type="submit"
               variant="contained"
               color="primary"
               style={{ backgroundColor: currentColor }}
-              onClick={this.addNewColor}
             >
               Add Color
             </Button>
@@ -228,7 +252,12 @@ class NewPaletteForm extends Component {
         >
           <div className={classes.drawerHeader} />
           {colors.map(color => (
-            <DraggableColorBox color={color.color} name={color.name} />
+            <DraggableColorBox
+              key={color.name}
+              color={color.color}
+              name={color.name}
+              handleClick={() => this.removeColor(color.name)}
+            />
           ))}
         </main>
       </div>
