@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import classNames from "classnames";
 import { withStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
@@ -77,12 +78,16 @@ const styles = theme => ({
 });
 
 class NewPaletteForm extends Component {
+  static defaultProps = {
+    maxColors: 20,
+  };
+
   constructor(props) {
     super(props);
     this.state = {
       open: true,
       currentColor: "teal",
-      colors: [{ color: "blue", name: "blue" }],
+      colors: this.props.palettes[0].colors,
       newColorName: "",
       newPaletteName: "",
     };
@@ -91,6 +96,8 @@ class NewPaletteForm extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.savePalette = this.savePalette.bind(this);
     this.removeColor = this.removeColor.bind(this);
+    this.clearColors = this.clearColors.bind(this);
+    this.addRandomColor = this.addRandomColor.bind(this);
   }
 
   componentDidMount() {
@@ -138,6 +145,17 @@ class NewPaletteForm extends Component {
     this.setState({ [evt.target.name]: evt.target.value });
   }
 
+  clearColors() {
+    this.setState({ colors: [] });
+  }
+
+  addRandomColor() {
+    const allColors = this.props.palettes.map(p => p.colors).flat();
+    const rand = Math.floor(Math.random() * allColors.length);
+    const randomColor = allColors[rand];
+    this.setState({ colors: [...this.state.colors, randomColor] });
+  }
+
   savePalette() {
     let newName = this.state.newPaletteName;
     const newPalette = {
@@ -162,8 +180,9 @@ class NewPaletteForm extends Component {
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes, maxColors } = this.props;
     const { open, currentColor, colors, newColorName } = this.state;
+    const paletteIsFull = colors.length >= maxColors;
 
     return (
       <div className={classes.root}>
@@ -184,9 +203,6 @@ class NewPaletteForm extends Component {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" color="inherit" noWrap>
-              Persistent drawer
-            </Typography>
             <ValidatorForm onSubmit={this.savePalette}>
               <TextValidator
                 label="Palette Name"
@@ -199,6 +215,11 @@ class NewPaletteForm extends Component {
               <Button variant="contained" color="primary" type="submit">
                 Save Palette
               </Button>
+              <Link to="/">
+                <Button variant="contained" color="secondary">
+                  Go Back
+                </Button>
+              </Link>
             </ValidatorForm>
           </Toolbar>
         </AppBar>
@@ -219,10 +240,19 @@ class NewPaletteForm extends Component {
           <Divider />
           <Typography variant="h4">Design Your Palette</Typography>
           <div>
-            <Button variant="contained" color="secondary">
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={this.clearColors}
+            >
               Clear Palette
             </Button>
-            <Button variant="contained" color="primary">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.addRandomColor}
+              disabled={paletteIsFull}
+            >
               Random Color
             </Button>
           </div>
@@ -246,9 +276,10 @@ class NewPaletteForm extends Component {
               type="submit"
               variant="contained"
               color="primary"
-              style={{ backgroundColor: currentColor }}
+              disabled={paletteIsFull}
+              style={{ backgroundColor: paletteIsFull ? "grey" : currentColor }}
             >
-              Add Color
+              {paletteIsFull ? "Palette Full" : "Add Color"}
             </Button>
           </ValidatorForm>
         </Drawer>
