@@ -38,8 +38,8 @@ class ColorBox extends Component {
             })}
           />
           <div
-            className={classNames(classes.copyMessage, {
-              [classes.showMessage]: copied,
+            className={classNames(classes.copyMsg, {
+              [classes.showMsg]: copied,
             })}
           >
             <h1>Copied!</h1>

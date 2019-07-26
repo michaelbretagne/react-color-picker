@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import seedPalettes from "./seedPalettes";
 import classNames from "classnames";
 import { withStyles } from "@material-ui/core/styles";
 import PaletteFormNav from "./PaletteFormNav";
@@ -22,7 +23,7 @@ class NewPaletteForm extends Component {
     super(props);
     this.state = {
       open: true,
-      colors: this.props.palettes[0].colors,
+      colors: seedPalettes[0].colors,
     };
     this.addNewColor = this.addNewColor.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -57,9 +58,19 @@ class NewPaletteForm extends Component {
 
   addRandomColor() {
     const allColors = this.props.palettes.map(p => p.colors).flat();
-    const rand = Math.floor(Math.random() * allColors.length);
-    const randomColor = allColors[rand];
+    let rand;
+    let randomColor;
+    let isDuplicateColor = true;
+    while (isDuplicateColor) {
+      rand = Math.floor(Math.random() * allColors.length);
+      randomColor = allColors[rand];
+      isDuplicateColor = this.isColorDuplicated(this.state.colors, randomColor);
+    }
     this.setState({ colors: [...this.state.colors, randomColor] });
+  }
+
+  isColorDuplicated(colors, randomColor) {
+    return colors.some(color => color.name === randomColor.name);
   }
 
   handleSubmit(newPalette) {
